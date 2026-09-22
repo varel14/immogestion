@@ -1,0 +1,19 @@
+# Dépendances
+node_modules/
+
+# Build
+dist/
+build/
+
+# Environnement
+.env
+.env.local
+.env.*.local
+
+# Fichiers uploadés
+server/uploads/*
+!server/uploads/.gitkeep
+
+# Divers
+*.log
+.DS_Store

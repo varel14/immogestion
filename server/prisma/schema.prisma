@@ -1,0 +1,157 @@
+// Schéma de la base de données — Application de gestion immobilière (Phase 1)
+// Les enums sont centralisés ici et côté serveur dans src/config/constants.ts
+// afin de pouvoir être étendus facilement dans les phases suivantes.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Énumérations ────────────────────────────────────────────────────────────
+
+enum Role {
+  ADMIN
+  AGENT
+  MANAGER
+}
+
+enum PropertyType {
+  HOUSE
+  APARTMENT
+  LAND
+  COMMERCIAL
+  OFFICE
+  OTHER
+}
+
+enum TransactionType {
+  SALE
+  RENT
+  SALE_AND_RENT
+}
+
+enum PropertyStatus {
+  AVAILABLE
+  RESERVED
+  SOLD
+  RENTED
+  UNAVAILABLE
+}
+
+enum MediaKind {
+  PHOTO
+  DOCUMENT
+}
+
+// ─── Modèles ─────────────────────────────────────────────────────────────────
+
+/// Utilisateur du logiciel (admin, agent, manager).
+/// Un User n'est ni un Owner ni un Client : ce sont les personnes autorisées
+/// à administrer l'application.
+model User {
+  id           String   @id @default(cuid())
+  firstName    String
+  lastName     String
+  email        String   @unique
+  phone        String?
+  passwordHash String
+  role         Role     @default(AGENT)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("users")
+}
+
+/// Propriétaire d'un ou plusieurs biens immobiliers.
+/// Un Owner ne possède pas nécessairement un compte User.
+model Owner {
+  id                   String     @id @default(cuid())
+  firstName            String
+  lastName             String
+  phone                String?
+  email                String?
+  address              String?
+  identificationNumber String?
+  notes                String?
+  properties           Property[]
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
+
+  @@map("owners")
+}
+
+/// Personne intéressée par l'achat ou la location.
+/// Aucune notion de prospect : toute personne du processus commercial est un Client.
+model Client {
+  id                   String   @id @default(cuid())
+  firstName            String
+  lastName             String
+  phone                String?
+  email                String?
+  address              String?
+  identificationNumber String?
+  notes                String?
+  isActive             Boolean  @default(true)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@map("clients")
+}
+
+/// Bien immobilier géré par l'agence.
+/// Le modèle est volontairement ouvert pour que les phases suivantes puissent
+/// y rattacher visites, demandes, ventes, locations, contrats et paiements.
+model Property {
+  id              String          @id @default(cuid())
+  reference       String          @unique
+  title           String
+  description     String?
+  propertyType    PropertyType
+  transactionType TransactionType
+  status          PropertyStatus  @default(AVAILABLE)
+  price           Decimal?        @db.Decimal(14, 2)
+  rentPrice       Decimal?        @db.Decimal(14, 2)
+  address         String?
+  city            String?
+  district        String?
+  surfaceArea     Float?
+  bedrooms        Int?
+  bathrooms       Int?
+  ownerId         String?
+  owner           Owner?          @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  isArchived      Boolean         @default(false)
+  media           PropertyMedia[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@index([city])
+  @@index([status])
+  @@index([ownerId])
+  @@index([propertyType])
+  @@index([transactionType])
+  @@map("properties")
+}
+
+/// Média associé à un bien (photo ou document).
+/// Les fichiers binaires sont stockés sur disque ; seules les métadonnées
+/// et l'URL sont enregistrées en base.
+model PropertyMedia {
+  id         String    @id @default(cuid())
+  propertyId String
+  property   Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  kind       MediaKind
+  url        String
+  fileName   String
+  mimeType   String
+  size       Int
+  isPrimary  Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+
+  @@index([propertyId])
+  @@map("property_media")
+}
