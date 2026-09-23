@@ -19,7 +19,7 @@ export function StatCard({ label, value, icon, to, iconClassName }: StatCardProp
       </div>
       <div className="min-w-0">
         <p className="truncate text-sm text-slate-500">{label}</p>
-        <p className="text-2xl font-bold text-slate-900">{value}</p>
+        <p className="font-display text-[26px] font-semibold leading-tight text-slate-900">{value}</p>
       </div>
     </div>
   );

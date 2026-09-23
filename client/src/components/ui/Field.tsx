@@ -19,15 +19,15 @@ export function Field({
 }) {
   return (
     <div className={cn('space-y-1.5', className)}>
-      <label className="block text-sm font-medium text-slate-700">
+      <label className="block text-[13px] font-semibold text-slate-600">
         {label}
-        {required && <span className="ml-0.5 text-red-500">*</span>}
+        {required && <span className="ml-0.5 text-blue-600">*</span>}
       </label>
       {children}
       {error ? (
         <p className="text-xs text-red-600">{error}</p>
       ) : hint ? (
-        <p className="text-xs text-slate-400">{hint}</p>
+        <p className="text-xs text-slate-500">{hint}</p>
       ) : null}
     </div>
   );
@@ -35,10 +35,13 @@ export function Field({
 
 const controlClasses = (error?: string) =>
   cn(
-    'block w-full rounded-lg border-0 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm ring-1 ring-inset',
-    'placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:outline-none',
-    error ? 'ring-red-300 focus:ring-red-500' : 'ring-slate-300 focus:ring-blue-600',
-    'disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400',
+    'block w-full rounded-[7px] border-0 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm ring-1 ring-inset',
+    'placeholder:text-slate-400 transition-shadow duration-150 focus:outline-none',
+    'focus:ring-[3px] focus:ring-blue-100',
+    error
+      ? 'ring-red-300 focus:ring-red-100'
+      : 'ring-slate-200 focus:border-blue-600 focus:ring-blue-100',
+    'disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400',
   );
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {

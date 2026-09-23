@@ -44,6 +44,9 @@ export const uploadPhotos = makeUploader(PHOTO_MIME_TYPES, null);
 /** Upload de documents (pdf, bureautique, images). */
 export const uploadDocuments = makeUploader(null, DOCUMENT_EXTENSIONS);
 
+/** Upload de photos pour les états des lieux. */
+export const uploadInspectionPhotos = makeUploader(PHOTO_MIME_TYPES, null);
+
 /** Vérifie la présence d'un fichier après passage par multer. */
 export function requireFiles(req: Request, _res: Response, next: NextFunction): void {
   const files = req.files as Express.Multer.File[] | undefined;

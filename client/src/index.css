@@ -1,19 +1,123 @@
 @import "tailwindcss";
 
+/* ─── Bastide — système de design ────────────────────────────────────────────
+   Palette chaude, elevation par bordures, duo typographique Fraunces (titres)
+   + Public Sans (interface). Les familles Tailwind (slate, blue, emerald…)
+   sont remappées sur les teintes Bastide : le re-skin s'applique ainsi à
+   l'ensemble de l'application sans réécrire chaque classe. */
+
 @theme {
-  --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  /* Neutres chauds (slate remappé) */
+  --color-slate-50: #faf8f4;  /* fond de page — jamais blanc pur */
+  --color-slate-100: #f1ede6; /* surface secondaire, survols */
+  --color-slate-200: #e3dccf; /* toutes les bordures */
+  --color-slate-300: #d3c9b6;
+  --color-slate-400: #a79c89;
+  --color-slate-500: #8c8375; /* texte doux, placeholders */
+  --color-slate-600: #6b6153; /* texte secondaire */
+  --color-slate-700: #4a4034;
+  --color-slate-800: #3a332b; /* texte courant, chaud presque-noir */
+  --color-slate-900: #241f1a; /* titres, texte principal */
+  --color-slate-950: #1b1712;
+
+  /* Accent terracotta — actions principales uniquement (blue remappé) */
+  --color-blue-50: #f9f1e9;
+  --color-blue-100: #f3e4d8;
+  --color-blue-200: #e8cdb6;
+  --color-blue-300: #d9ac8b;
+  --color-blue-400: #c4855a;
+  --color-blue-500: #b76e44;
+  --color-blue-600: #a85c32;
+  --color-blue-700: #8b4a28;
+  --color-blue-800: #6e3a1f;
+  --color-blue-900: #522b17;
+
+  /* Sémantiques */
+  --color-emerald-50: #f0f6f2;
+  --color-emerald-100: #e7f1ec;
+  --color-emerald-200: #cde2d6;
+  --color-emerald-500: #3b7d5e;
+  --color-emerald-600: #2f6b4f;
+  --color-emerald-700: #275941;
+
+  --color-red-50: #fcf1f1;
+  --color-red-100: #fbeaea;
+  --color-red-200: #f2d5d5;
+  --color-red-300: #e3b8b8;
+  --color-red-500: #c24e4e;
+  --color-red-600: #b23a3a;
+  --color-red-700: #973030;
+
+  --color-amber-50: #fcf7ea;
+  --color-amber-100: #fbf2df;
+  --color-amber-200: #f1e2bc;
+  --color-amber-500: #c79a40;
+  --color-amber-600: #b8862b;
+  --color-amber-700: #9a7024;
+
+  --color-indigo-50: #edf2f7;
+  --color-indigo-100: #e8eff6;
+  --color-indigo-200: #cfdeec;
+  --color-indigo-500: #3e6d9c;
+  --color-indigo-600: #2f5d8a;
+  --color-indigo-700: #27507a;
+
+  --color-violet-50: #f5f1f4;
+  --color-violet-100: #efe8ed;
+  --color-violet-200: #ded2db;
+  --color-violet-500: #7d5f78;
+  --color-violet-600: #6b4a66;
+  --color-violet-700: #593d55;
+
+  --color-cyan-50: #edf3f1;
+  --color-cyan-100: #e4eeeb;
+  --color-cyan-200: #c9ddd7;
+  --color-cyan-500: #3e7a6f;
+  --color-cyan-600: #2f6b5f;
+  --color-cyan-700: #285950;
+
+  --color-orange-50: #fbf3e8;
+  --color-orange-100: #f7ead6;
+  --color-orange-200: #efd5ac;
+  --color-orange-500: #c08a3e;
+  --color-orange-600: #a8762f;
+  --color-orange-700: #8a5f26;
+
+  /* Vert charbon profond — réservé à la sidebar (chrome) */
+  --color-brand: #1f3230;
+  --color-brand-soft: #2a4140;
+
+  /* Typographie : serif de caractère pour les titres, sans neutre pour l'UI */
+  --font-sans: "Public Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+
+  /* Rayons : 5px contrôles, 8px chips/tableaux, 14px cartes/modales */
+  --radius-sm: 5px;
+  --radius-md: 8px;
+  --radius-lg: 8px;
+  --radius-xl: 14px;
+
+  /* L'unique ombre autorisée : indice ambiant quasi invisible */
+  --shadow-sm: 0 1px 2px rgba(36, 31, 26, 0.06);
+  --shadow: 0 1px 2px rgba(36, 31, 26, 0.06);
 }
 
 @layer base {
+  :root {
+    color-scheme: light;
+  }
   html {
     @apply antialiased;
   }
   body {
-    @apply bg-slate-100 text-slate-800 font-sans;
+    @apply bg-slate-50 font-sans text-[14px] leading-relaxed text-slate-800;
+  }
+  h1, h2, h3 {
+    letter-spacing: -0.01em;
   }
 }
 
-/* Barre de défilement discrète et moderne */
+/* Barre de défilement discrète, aux teintes chaudes */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -22,9 +126,9 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: var(--color-slate-300);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: var(--color-slate-400);
 }

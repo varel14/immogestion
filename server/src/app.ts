@@ -12,6 +12,15 @@ import { ownerRoutes } from './modules/owners/owners.routes.js';
 import { clientRoutes } from './modules/clients/clients.routes.js';
 import { propertyRoutes } from './modules/properties/properties.routes.js';
 import { statsRoutes } from './modules/stats/stats.routes.js';
+import { interestRoutes } from './modules/interests/interests.routes.js';
+import { visitRoutes } from './modules/visits/visits.routes.js';
+import { requestRoutes } from './modules/requests/requests.routes.js';
+import { offerRoutes } from './modules/offers/offers.routes.js';
+import { reservationRoutes } from './modules/reservations/reservations.routes.js';
+import { saleRoutes } from './modules/sales/sales.routes.js';
+import { contractRoutes } from './modules/contracts/contracts.routes.js';
+import { paymentRoutes } from './modules/payments/payments.routes.js';
+import { auditRoutes } from './modules/audit/audit.routes.js';
 
 const API_PREFIX = '/api';
 
@@ -38,6 +47,15 @@ export function createApp() {
   app.use(`${API_PREFIX}/clients`, clientRoutes);
   app.use(`${API_PREFIX}/properties`, propertyRoutes);
   app.use(`${API_PREFIX}/stats`, statsRoutes);
+  app.use(`${API_PREFIX}/interests`, interestRoutes);
+  app.use(`${API_PREFIX}/visits`, visitRoutes);
+  app.use(`${API_PREFIX}/requests`, requestRoutes);
+  app.use(`${API_PREFIX}/offers`, offerRoutes);
+  app.use(`${API_PREFIX}/reservations`, reservationRoutes);
+  app.use(`${API_PREFIX}/sales`, saleRoutes);
+  app.use(`${API_PREFIX}/contracts`, contractRoutes);
+  app.use(`${API_PREFIX}/payments`, paymentRoutes);
+  app.use(`${API_PREFIX}/audit`, auditRoutes);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

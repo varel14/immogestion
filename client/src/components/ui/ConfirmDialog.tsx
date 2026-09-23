@@ -1,4 +1,5 @@
 import { AlertTriangle } from 'lucide-react';
+import type { ReactNode } from 'react';
 import { Button } from './Button.js';
 import { Modal } from './Modal.js';
 
@@ -12,6 +13,8 @@ interface ConfirmDialogProps {
   loading?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
+  /** Champ facultatif affiché sous le message (ex. : motif d'annulation). */
+  children?: ReactNode;
 }
 
 /** Demande de confirmation avant une action sensible. */
@@ -25,6 +28,7 @@ export function ConfirmDialog({
   loading = false,
   onConfirm,
   onCancel,
+  children,
 }: ConfirmDialogProps) {
   return (
     <Modal
@@ -47,6 +51,7 @@ export function ConfirmDialog({
         <AlertTriangle className={`mt-0.5 h-5 w-5 shrink-0 ${danger ? 'text-red-500' : 'text-amber-500'}`} />
         <p>{message}</p>
       </div>
+      {children && <div className="mt-4">{children}</div>}
     </Modal>
   );
 }

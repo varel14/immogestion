@@ -4,6 +4,7 @@ import { badRequest, notFound } from '../../utils/app-error.js';
 import { buildPaginationMeta, parsePagination } from '../../utils/pagination.js';
 import { generatePropertyReference } from '../../utils/reference.js';
 import { toPlainProperty } from '../../utils/serializers.js';
+import { assertManualPropertyStatus } from '../../utils/property-status.js';
 import type { CreatePropertyInput, ListPropertiesQuery } from './properties.validators.js';
 
 const propertyInclude = {
@@ -85,6 +86,8 @@ async function assertOwnerExists(ownerId: string | null) {
 
 export async function createProperty(input: CreatePropertyInput) {
   await assertOwnerExists(input.ownerId);
+  // Les statuts RESERVED / SOLD / RENTED sont réservés aux opérations métier.
+  assertManualPropertyStatus(input.status);
   const reference = await generatePropertyReference();
   const property = await prisma.property.create({
     data: { ...input, reference },
@@ -94,11 +97,19 @@ export async function createProperty(input: CreatePropertyInput) {
 }
 
 export async function updateProperty(id: string, input: CreatePropertyInput) {
-  const existing = await prisma.property.findUnique({ where: { id }, select: { id: true } });
+  const existing = await prisma.property.findUnique({ where: { id }, select: { id: true, status: true } });
   if (!existing) {
     throw notFound('Bien introuvable.');
   }
   await assertOwnerExists(input.ownerId);
+  // Les statuts opérationnels (Réservé / Vendu / Loué) sont gérés par les
+  // réservations, ventes et contrats : un changement manuel est refusé.
+  assertManualPropertyStatus(input.status);
+  if (input.status !== existing.status && ['RESERVED', 'SOLD', 'RENTED'].includes(existing.status)) {
+    throw badRequest(
+      'Le statut actuel de ce bien est contrôlé par une opération en cours (réservation, vente ou location).',
+    );
+  }
   // La référence est générée automatiquement et n'est pas modifiable.
   const { ownerId, ...fields } = input;
   const property = await prisma.property.update({

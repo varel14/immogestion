@@ -32,10 +32,10 @@ export function Modal({ open, onClose, title, children, footer, size = 'md' }: M
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label={title}>
-      <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-[2px]" onClick={onClose} aria-hidden="true" />
+      <div className="fixed inset-0 bg-slate-900/50" onClick={onClose} aria-hidden="true" />
       <div className={cn('relative w-full rounded-xl bg-white shadow-xl', sizeClasses[size])}>
-        <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-          <h2 className="text-base font-semibold text-slate-800">{title}</h2>
+        <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+          <h2 className="font-display text-lg font-semibold text-slate-900">{title}</h2>
           <button
             type="button"
             onClick={onClose}

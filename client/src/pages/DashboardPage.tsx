@@ -1,5 +1,12 @@
 import { Link } from 'react-router-dom';
-import { Building2, CalendarClock, Home, KeyRound, MapPin, Tag, Users } from 'lucide-react';import { statsApi } from '../api/stats.js';
+import {
+  Building2, CalendarClock, CalendarDays, CheckCircle2, ClipboardList, FileSignature,
+  HandCoins, Home, KeyRound, MapPin, Tag, TrendingUp, Users, Wallet,
+} from 'lucide-react';
+import { Badge } from '../components/ui/Badge.js';
+import { visitStatusBadgeClass, visitStatusLabels } from '../utils/labels.js';
+import { formatDateTime } from '../utils/format.js';
+import { statsApi } from '../api/stats.js';
 import { useAsync } from '../hooks/useAsync.js';
 import { PageHeader } from '../components/ui/PageHeader.js';
 import { StatCard } from '../components/ui/StatCard.js';
@@ -7,7 +14,6 @@ import { Card } from '../components/ui/Card.js';
 import { Spinner } from '../components/ui/Spinner.js';
 import { ErrorState } from '../components/ui/ErrorState.js';
 import { EmptyState } from '../components/ui/EmptyState.js';
-import { Badge } from '../components/ui/Badge.js';
 import { Button } from '../components/ui/Button.js';
 import { formatPrice } from '../utils/format.js';
 import {
@@ -97,6 +103,87 @@ export function DashboardPage() {
           iconClassName="bg-orange-50 text-orange-600"
           to="/clients"
         />
+        <StatCard
+          label="Biens vendus"
+          value={stats.soldProperties}
+          icon={<CheckCircle2 className="h-5 w-5" />}
+          iconClassName="bg-emerald-50 text-emerald-600"
+        />
+        <StatCard
+          label="Biens loués"
+          value={stats.rentedProperties}
+          icon={<KeyRound className="h-5 w-5" />}
+          iconClassName="bg-cyan-50 text-cyan-600"
+        />
+
+        <p className="mt-4 text-xs font-semibold uppercase tracking-wider text-slate-400 sm:col-span-2 lg:col-span-4">
+          Suivi commercial
+        </p>
+        <StatCard
+          label="Visites programmées"
+          value={stats.visitsScheduled}
+          icon={<CalendarDays className="h-5 w-5" />}
+          iconClassName="bg-blue-50 text-blue-600"
+          to="/visites"
+        />
+        <StatCard
+          label="Visites du jour"
+          value={stats.visitsToday}
+          icon={<CalendarClock className="h-5 w-5" />}
+          iconClassName="bg-indigo-50 text-indigo-600"
+          to="/visites"
+        />
+        <StatCard
+          label="Demandes en attente"
+          value={stats.pendingRequests}
+          icon={<ClipboardList className="h-5 w-5" />}
+          iconClassName="bg-amber-50 text-amber-600"
+          to="/demandes"
+        />
+
+        <p className="mt-4 text-xs font-semibold uppercase tracking-wider text-slate-400 sm:col-span-2 lg:col-span-4">
+          Transactions
+        </p>
+        <StatCard
+          label="Ventes en cours"
+          value={stats.salesInProgress}
+          icon={<TrendingUp className="h-5 w-5" />}
+          iconClassName="bg-blue-50 text-blue-600"
+          to="/ventes"
+        />
+        <StatCard
+          label="Ventes finalisées"
+          value={stats.salesFinalized}
+          icon={<HandCoins className="h-5 w-5" />}
+          iconClassName="bg-emerald-50 text-emerald-600"
+          to="/ventes"
+        />
+        <StatCard
+          label="Contrats actifs"
+          value={stats.activeContracts}
+          icon={<FileSignature className="h-5 w-5" />}
+          iconClassName="bg-violet-50 text-violet-600"
+          to="/contrats"
+        />
+        <StatCard
+          label="Loyers attendus (mois)"
+          value={formatPrice(stats.rentsExpectedThisMonth)}
+          icon={<Wallet className="h-5 w-5" />}
+          iconClassName="bg-slate-100 text-slate-600"
+        />
+        <StatCard
+          label="Loyers encaissés (mois)"
+          value={formatPrice(stats.rentsCollectedThisMonth)}
+          icon={<Wallet className="h-5 w-5" />}
+          iconClassName="bg-emerald-50 text-emerald-600"
+          to="/paiements"
+        />
+        <StatCard
+          label={`Loyers en retard (${stats.overdueInvoicesCount})`}
+          value={formatPrice(stats.overdueAmount)}
+          icon={<CalendarClock className="h-5 w-5" />}
+          iconClassName="bg-red-50 text-red-600"
+        />
       </div>
 
       {/* Derniers biens ajoutés */}
@@ -104,7 +191,7 @@ export function DashboardPage() {
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-slate-800">Derniers biens ajoutés</h2>
           <Link to="/biens" className="text-sm font-medium text-blue-600 hover:text-blue-700">
-            Voir tous les biens →
+            Voir tous les biens
           </Link>
         </div>
 
@@ -163,6 +250,33 @@ export function DashboardPage() {
           </div>
         )}
       </div>
+
+      {/* Prochaines visites */}
+      {stats.upcomingVisits.length > 0 && (
+        <div className="mt-8">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-slate-800">Prochaines visites</h2>
+            <Link to="/visites" className="text-sm font-medium text-blue-600 hover:text-blue-700">
+              Voir toutes les visites
+            </Link>
+          </div>
+          <Card>
+            <ul className="divide-y divide-slate-100">
+              {stats.upcomingVisits.map((visit) => (
+                <li key={visit.id}>
+                  <Link to={`/visites/${visit.id}`} className="flex flex-wrap items-center gap-3 px-5 py-3 transition-colors hover:bg-slate-50">
+                    <span className="text-sm font-semibold text-slate-800">{formatDateTime(visit.scheduledAt)}</span>
+                    <span className="min-w-0 flex-1 truncate text-sm text-slate-600">{visit.property.title}</span>
+                    <span className="text-sm text-slate-500">{visit.client.firstName} {visit.client.lastName}</span>
+                    <span className="hidden text-xs text-slate-400 sm:block">Agent : {visit.agent.firstName} {visit.agent.lastName}</span>
+                    <Badge className={visitStatusBadgeClass[visit.status]}>{visitStatusLabels[visit.status]}</Badge>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

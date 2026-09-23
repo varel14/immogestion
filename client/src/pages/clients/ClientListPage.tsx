@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Archive, ArchiveRestore, ChevronRight, Plus, Users } from 'lucide-react';
 import { clientsApi } from '../../api/clients.js';
 import { getApiErrorMessage } from '../../api/client.js';
+import { toast } from '../../utils/toast.js';
 import { useAsync } from '../../hooks/useAsync.js';
 import { useDebounce } from '../../hooks/useDebounce.js';
 import { PageHeader } from '../../components/ui/PageHeader.js';
@@ -47,6 +48,7 @@ export function ClientListPage() {
     setActionError(null);
     try {
       await clientsApi.updateStatus(target.id, !target.isActive);
+      toast.success(target.isActive ? 'Le client a été archivé.' : 'Le client a été restauré.');
       setTarget(null);
       reload();
     } catch (err) {

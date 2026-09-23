@@ -21,8 +21,8 @@ export function Pagination({ meta, onPageChange }: PaginationProps) {
         {first}–{last} sur <span className="font-medium text-slate-700">{total}</span> résultat{total > 1 ? 's' : ''}
       </p>
       <div className="flex items-center gap-2">
-        <span className="text-xs text-slate-500">
-          Page {page} sur {totalPages}
+        <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">
+          {page} / {totalPages}
         </span>
         <Button
           variant="secondary"

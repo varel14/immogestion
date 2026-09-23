@@ -17,6 +17,21 @@ import { UserDetailPage } from './pages/users/UserDetailPage.js';
 import { UserFormPage } from './pages/users/UserFormPage.js';
 import { ProfilePage } from './pages/profile/ProfilePage.js';
 import { NotFoundPage } from './pages/NotFoundPage.js';
+import { VisitListPage } from './pages/visits/VisitListPage.js';
+import { VisitFormPage } from './pages/visits/VisitFormPage.js';
+import { VisitDetailPage } from './pages/visits/VisitDetailPage.js';
+import { VisitCalendarPage } from './pages/visits/VisitCalendarPage.js';
+import { RequestListPage } from './pages/requests/RequestListPage.js';
+import { RequestFormPage } from './pages/requests/RequestFormPage.js';
+import { RequestDetailPage } from './pages/requests/RequestDetailPage.js';
+import { ReservationListPage } from './pages/reservations/ReservationListPage.js';
+import { SaleListPage } from './pages/sales/SaleListPage.js';
+import { SaleFormPage } from './pages/sales/SaleFormPage.js';
+import { SaleDetailPage } from './pages/sales/SaleDetailPage.js';
+import { ContractListPage } from './pages/contracts/ContractListPage.js';
+import { ContractFormPage } from './pages/contracts/ContractFormPage.js';
+import { ContractDetailPage } from './pages/contracts/ContractDetailPage.js';
+import { PaymentListPage } from './pages/payments/PaymentListPage.js';
 
 export default function App() {
   return (
@@ -62,6 +77,42 @@ export default function App() {
               <Route path=":id/modifier" element={<UserFormPage />} />
             </Route>
           </Route>
+
+          {/* Visites et calendrier */}
+          <Route path="visites">
+            <Route index element={<VisitListPage />} />
+            <Route path="calendrier" element={<VisitCalendarPage />} />
+            <Route path="nouveau" element={<VisitFormPage />} />
+            <Route path=":id" element={<VisitDetailPage />} />
+            <Route path=":id/modifier" element={<VisitFormPage />} />
+          </Route>
+
+          {/* Demandes */}
+          <Route path="demandes">
+            <Route index element={<RequestListPage />} />
+            <Route path="nouveau" element={<RequestFormPage />} />
+            <Route path=":id" element={<RequestDetailPage />} />
+          </Route>
+
+          {/* Réservations */}
+          <Route path="reservations" element={<ReservationListPage />} />
+
+          {/* Ventes */}
+          <Route path="ventes">
+            <Route index element={<SaleListPage />} />
+            <Route path="nouveau" element={<SaleFormPage />} />
+            <Route path=":id" element={<SaleDetailPage />} />
+          </Route>
+
+          {/* Contrats de location */}
+          <Route path="contrats">
+            <Route index element={<ContractListPage />} />
+            <Route path="nouveau" element={<ContractFormPage />} />
+            <Route path=":id" element={<ContractDetailPage />} />
+          </Route>
+
+          {/* Paiements */}
+          <Route path="paiements" element={<PaymentListPage />} />
 
           {/* Profil personnel */}
           <Route path="profil" element={<ProfilePage />} />

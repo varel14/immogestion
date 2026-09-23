@@ -1,6 +1,4 @@
-const priceFormatter = new Intl.NumberFormat('fr-FR', {
-  style: 'currency',
-  currency: 'EUR',
+const numberFormatter = new Intl.NumberFormat('fr-FR', {
   maximumFractionDigits: 0,
 });
 
@@ -18,9 +16,9 @@ const dateTimeFormatter = new Intl.DateTimeFormat('fr-FR', {
   minute: '2-digit',
 });
 
-/** Formate un prix en euros (« — » si absent). */
+/** Formate un prix en francs CFA (« — » si absent). */
 export function formatPrice(value: number | null | undefined): string {
-  return value === null || value === undefined ? '—' : priceFormatter.format(value);
+  return value === null || value === undefined ? '—' : `${numberFormatter.format(value)} FCFA`;
 }
 
 /** Formate une date ISO en date française lisible. */

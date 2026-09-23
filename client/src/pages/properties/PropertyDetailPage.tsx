@@ -13,6 +13,7 @@ import {
   ImagePlus,
   MapPin,
   Pencil,
+  Plus,
   Star,
   Trash2,
   User,
@@ -30,6 +31,8 @@ import { EmptyState } from '../../components/ui/EmptyState.js';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog.js';
 import { Alert } from '../../components/ui/Alert.js';
 import { formatFileSize, formatPrice, formatSurface, fullName } from '../../utils/format.js';
+import { PropertyHistorySections } from '../../components/commercial/HistorySections.js';
+import { InterestModal } from '../../components/commercial/InterestModal.js';
 import {
   propertyStatusBadgeClass,
   propertyStatusLabels,
@@ -41,6 +44,7 @@ import type { PropertyMedia } from '../../types/index.js';
 export function PropertyDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [interestOpen, setInterestOpen] = useState(false);
   const { data: property, loading, error, reload } = useAsync((signal) => propertiesApi.getById(id!), [id]);
 
   const [archiveOpen, setArchiveOpen] = useState(false);
@@ -156,6 +160,9 @@ export function PropertyDetailPage() {
                 onClick={() => setArchiveOpen(true)}
               >
                 {property.isArchived ? 'Désarchiver' : 'Archiver'}
+              </Button>
+              <Button variant="secondary" icon={<Plus className="h-4 w-4" />} onClick={() => setInterestOpen(true)}>
+                Ajouter un intérêt
               </Button>
               <Link to={`/biens/${property.id}/modifier`}>
                 <Button icon={<Pencil className="h-4 w-4" />}>Modifier</Button>
@@ -439,6 +446,15 @@ export function PropertyDetailPage() {
         loading={archiveLoading}
         onConfirm={handleArchive}
         onCancel={() => setArchiveOpen(false)}
+      />
+
+      <PropertyHistorySections propertyId={property.id} />
+
+      <InterestModal
+        open={interestOpen}
+        onClose={() => setInterestOpen(false)}
+        propertyId={property.id}
+        onCreated={reload}
       />
     </div>
   );

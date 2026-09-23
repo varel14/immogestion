@@ -1,17 +1,33 @@
 import { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { Building2, KeyRound, LayoutDashboard, LogOut, Menu, UserCog, Users, X } from 'lucide-react';
+import { Building2, CalendarDays, ClipboardList, FileSignature, HandCoins, KeyRound, LayoutDashboard, Lock, LogOut, Menu, ReceiptText, UserCog, Users, X } from 'lucide-react';
 import { useAuth } from '../../auth/AuthContext.js';
 import { initials } from '../../utils/format.js';
-import { roleLabels, roleBadgeClass } from '../../utils/labels.js';
+import { roleLabels } from '../../utils/labels.js';
 import { cn } from '../../utils/cn.js';
 import { Badge } from '../ui/Badge.js';
+import { Toaster } from '../ui/Toaster.js';
 
-const navigation = [
+interface NavItem {
+  to: string;
+  label: string;
+  icon: typeof LayoutDashboard;
+  end?: boolean;
+  section?: string;
+}
+
+const navigation: NavItem[] = [
   { to: '/', label: 'Tableau de bord', icon: LayoutDashboard, end: true },
   { to: '/biens', label: 'Biens', icon: Building2 },
   { to: '/proprietaires', label: 'Propriétaires', icon: KeyRound },
   { to: '/clients', label: 'Clients', icon: Users },
+  { to: '/visites', label: 'Visites', icon: CalendarDays, section: 'Suivi commercial' },
+  { to: '/visites/calendrier', label: 'Calendrier', icon: CalendarDays, section: 'Suivi commercial' },
+  { to: '/demandes', label: 'Demandes', icon: ClipboardList, section: 'Suivi commercial' },
+  { to: '/reservations', label: 'Réservations', icon: Lock, section: 'Suivi commercial' },
+  { to: '/ventes', label: 'Ventes', icon: HandCoins, section: 'Transactions' },
+  { to: '/contrats', label: 'Locations', icon: FileSignature, section: 'Transactions' },
+  { to: '/paiements', label: 'Paiements', icon: ReceiptText, section: 'Transactions' },
 ];
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
@@ -26,63 +42,74 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const items = user?.role === 'ADMIN' ? [...navigation, { to: '/utilisateurs', label: 'Utilisateurs', icon: UserCog }] : navigation;
 
   return (
-    <div className="flex h-full flex-col bg-slate-900">
+    <div className="flex h-full flex-col bg-brand">
       {/* Marque */}
       <div className="flex h-16 items-center gap-3 px-5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
-          <Building2 className="h-5 w-5" />
+        <div className="flex h-9 w-9 items-center justify-center rounded-[8px] bg-white/10 text-white">
+          <Building2 className="h-5 w-5" strokeWidth={1.8} />
         </div>
         <div>
-          <p className="text-base leading-tight font-bold text-white">ImmoGestion</p>
+          <p className="font-display text-lg leading-tight font-semibold text-white">ImmoGestion</p>
           <p className="text-xs text-slate-400">Gestion immobilière</p>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="mt-4 flex-1 space-y-1 px-3" aria-label="Navigation principale">
-        {items.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            end={item.end}
-            onClick={onNavigate}
-            className={({ isActive }) =>
-              cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
-                isActive ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-300 hover:bg-slate-800 hover:text-white',
-              )
-            }
-          >
-            <item.icon className="h-5 w-5 shrink-0" />
-            {item.label}
-          </NavLink>
-        ))}
+      <nav className="mt-4 flex-1 space-y-1 overflow-y-auto px-3 pb-4" aria-label="Navigation principale">
+        {items.map((item, index) => {
+          const showSection = item.section && items[index - 1]?.section !== item.section;
+          return (
+            <div key={item.to}>
+              {showSection && (
+                <p className="mb-1 mt-4 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-500 first:mt-0">
+                  {item.section}
+                </p>
+              )}
+              <NavLink
+                to={item.to}
+                end={item.end}
+                onClick={onNavigate}
+                className={({ isActive }) =>
+                  cn(
+                    'flex items-center gap-3 rounded-[8px] px-3 py-2 text-sm font-medium transition-colors duration-150',
+                    isActive
+                      ? 'bg-slate-100 text-brand'
+                      : 'text-slate-300 hover:bg-white/10 hover:text-white',
+                  )
+                }
+              >
+                <item.icon className="h-5 w-5 shrink-0" />
+                {item.label}
+              </NavLink>
+            </div>
+          );
+        })}
       </nav>
 
       {/* Utilisateur connecté */}
       {user && (
-        <div className="border-t border-slate-800 p-3">
+        <div className="border-t border-white/10 p-3">
           <NavLink
             to="/profil"
             onClick={onNavigate}
-            className="flex items-center gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-slate-800"
+            className="flex items-center gap-3 rounded-[8px] px-2 py-2 transition-colors duration-150 hover:bg-white/10"
           >
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-600/20 text-sm font-semibold text-blue-300">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/10 text-sm font-semibold text-slate-100">
               {initials(user)}
             </span>
             <span className="min-w-0 flex-1">
               <span className="block truncate text-sm font-medium text-white">
                 {user.firstName} {user.lastName}
               </span>
-              <Badge className={cn('mt-0.5', roleBadgeClass[user.role])}>{roleLabels[user.role]}</Badge>
+              <span className="block text-xs text-slate-400">{roleLabels[user.role]}</span>
             </span>
           </NavLink>
           <button
             type="button"
             onClick={handleLogout}
-            className="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-300 transition-colors hover:bg-slate-800 hover:text-white"
+            className="mt-1.5 flex w-full items-center justify-center gap-2 rounded-[8px] border border-white/25 px-3 py-2 text-[13.5px] font-semibold text-slate-200 transition-colors duration-150 hover:bg-white/10 hover:text-white"
           >
-            <LogOut className="h-5 w-5 shrink-0" />
+            <LogOut className="h-4 w-4 shrink-0" strokeWidth={1.8} />
             Déconnexion
           </button>
         </div>
@@ -132,10 +159,10 @@ export function Layout() {
             <Menu className="h-6 w-6" />
           </button>
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white">
-              <Building2 className="h-4 w-4" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-brand text-white">
+              <Building2 className="h-4 w-4" strokeWidth={1.8} />
             </div>
-            <span className="font-bold text-slate-900">ImmoGestion</span>
+            <span className="font-display text-lg font-semibold text-slate-900">ImmoGestion</span>
           </div>
         </header>
 
@@ -143,6 +170,8 @@ export function Layout() {
           <Outlet />
         </main>
       </div>
+
+      <Toaster />
     </div>
   );
 }

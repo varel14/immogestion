@@ -47,6 +47,112 @@ enum MediaKind {
   DOCUMENT
 }
 
+// ─── Phase 2 : intérêts, visites, demandes, offres, réservations ─────────────
+
+enum InterestTransactionType {
+  SALE
+  RENT
+}
+
+enum InterestStatus {
+  NEW
+  CONTACTED
+  VISIT_PLANNED
+  NEGOTIATING
+  DROPPED
+  CONVERTED
+}
+
+enum VisitStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+  RESCHEDULED
+  NO_SHOW
+}
+
+enum RequestType {
+  PURCHASE
+  RENTAL
+}
+
+enum RequestStatus {
+  PENDING
+  UNDER_REVIEW
+  ACCEPTED
+  REFUSED
+  CANCELLED
+}
+
+enum OfferStatus {
+  PENDING
+  ACCEPTED
+  REFUSED
+  WITHDRAWN
+}
+
+enum ReservationSourceType {
+  REQUEST
+  OFFER
+}
+
+enum ReservationStatus {
+  ACTIVE
+  CONFIRMED
+  EXPIRED
+  CANCELLED
+  CONVERTED
+}
+
+// ─── Phase 3 : ventes, contrats, inspections, échéances, paiements ───────────
+
+enum SaleStatus {
+  PREPARATION
+  IN_PROGRESS
+  FINALIZED
+  CANCELLED
+}
+
+enum LeaseStatus {
+  DRAFT
+  ACTIVE
+  EXPIRED
+  TERMINATED
+  CANCELLED
+}
+
+enum InspectionType {
+  ENTRY
+  EXIT
+}
+
+enum InvoiceStatus {
+  PENDING
+  PARTIALLY_PAID
+  PAID
+  OVERDUE
+}
+
+enum PaymentType {
+  SALE
+  RENT
+  DEPOSIT
+  OTHER
+}
+
+enum PaymentMethod {
+  CASH
+  BANK_TRANSFER
+  MOBILE_MONEY
+  OTHER
+}
+
+enum PaymentStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
 // ─── Modèles ─────────────────────────────────────────────────────────────────
 
 /// Utilisateur du logiciel (admin, agent, manager).
@@ -64,13 +170,18 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
+  visits      Visit[]              @relation("VisitAgent")
+  sales       Sale[]               @relation("SaleAgent")
+  inspections PropertyInspection[] @relation("InspectionInspector")
+  auditLogs   AuditLog[]
+
   @@map("users")
 }
 
 /// Propriétaire d'un ou plusieurs biens immobiliers.
 /// Un Owner ne possède pas nécessairement un compte User.
 model Owner {
-  id                   String     @id @default(cuid())
+  id                   String   @id @default(cuid())
   firstName            String
   lastName             String
   phone                String?
@@ -78,9 +189,12 @@ model Owner {
   address              String?
   identificationNumber String?
   notes                String?
-  properties           Property[]
-  createdAt            DateTime   @default(now())
-  updatedAt            DateTime   @updatedAt
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  properties Property[]
+  sales      Sale[]     @relation("SaleOwner")
+  leases     RentalContract[] @relation("LeaseOwner")
 
   @@map("owners")
 }
@@ -99,6 +213,15 @@ model Client {
   isActive             Boolean  @default(true)
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
+
+  interests    ClientInterest[]
+  visits       Visit[]
+  requests     PropertyRequest[]
+  offers       PurchaseOffer[]
+  reservations Reservation[]
+  purchases    Sale[]             @relation("SaleBuyer")
+  leases       RentalContract[]   @relation("LeaseTenant")
+  payments     Payment[]
 
   @@map("clients")
 }
@@ -126,6 +249,13 @@ model Property {
   owner           Owner?          @relation(fields: [ownerId], references: [id], onDelete: SetNull)
   isArchived      Boolean         @default(false)
   media           PropertyMedia[]
+  interests       ClientInterest[]
+  visits          Visit[]
+  requests        PropertyRequest[]
+  offers          PurchaseOffer[]
+  reservations    Reservation[]
+  sales           Sale[]
+  leases          RentalContract[]
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 
@@ -154,4 +284,306 @@ model PropertyMedia {
 
   @@index([propertyId])
   @@map("property_media")
+}
+
+// ─── Phase 2 : intérêts, visites, demandes, offres, réservations ─────────────
+
+/// Intérêt d'un client pour un bien (vente ou location).
+/// Conserve l'historique même si le bien change ensuite de statut.
+model ClientInterest {
+  id              String   @id @default(cuid())
+  clientId        String
+  client          Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  propertyId      String
+  property        Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  transactionType InterestTransactionType
+  status          InterestStatus @default(NEW)
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([clientId, propertyId, transactionType])
+  @@index([propertyId])
+  @@map("client_interests")
+}
+
+/// Visite d'un bien par un client, conduite par un agent interne.
+model Visit {
+  id          String      @id @default(cuid())
+  propertyId  String
+  property    Property    @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  clientId    String
+  client      Client      @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  agentId     String
+  agent       User        @relation("VisitAgent", fields: [agentId], references: [id])
+  interestId  String?
+  scheduledAt DateTime
+  status      VisitStatus @default(SCHEDULED)
+  notes       String?
+  feedback    String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([scheduledAt])
+  @@index([agentId])
+  @@index([propertyId])
+  @@index([clientId])
+  @@map("visits")
+}
+
+/// Demande d'achat ou de location déposée par un client sur un bien.
+model PropertyRequest {
+  id             String        @id @default(cuid())
+  clientId       String
+  client         Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  propertyId     String
+  property       Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  type           RequestType
+  status         RequestStatus @default(PENDING)
+  proposedAmount Decimal?      @db.Decimal(14, 2)
+  notes          String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  offers       PurchaseOffer[]
+  reservations Reservation[]
+  sales        Sale[]
+  leases       RentalContract[]
+
+  @@index([propertyId])
+  @@index([clientId])
+  @@map("property_requests")
+}
+
+/// Offre d'achat associée à une demande. Les anciennes offres sont
+/// conservées : une nouvelle offre crée un nouvel enregistrement.
+model PurchaseOffer {
+  id          String          @id @default(cuid())
+  requestId   String
+  request     PropertyRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  clientId    String
+  client      Client          @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  propertyId  String
+  property    Property        @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  amount      Decimal         @db.Decimal(14, 2)
+  status      OfferStatus     @default(PENDING)
+  observations String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  reservations Reservation[]
+
+  @@index([requestId])
+  @@index([propertyId])
+  @@index([clientId])
+  @@map("purchase_offers")
+}
+
+/// Réservation temporaire d'un bien, issue d'une demande ou d'une offre.
+/// Une réservation active place le bien en RESERVED.
+model Reservation {
+  id          String                @id @default(cuid())
+  clientId    String
+  client      Client                @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  propertyId  String
+  property    Property              @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  sourceType  ReservationSourceType
+  sourceId    String
+  requestId   String?
+  request     PropertyRequest?      @relation(fields: [requestId], references: [id], onDelete: SetNull)
+  offerId     String?
+  offer       PurchaseOffer?        @relation(fields: [offerId], references: [id], onDelete: SetNull)
+  reservedAt  DateTime              @default(now())
+  expiresAt   DateTime
+  status      ReservationStatus     @default(ACTIVE)
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+
+  sales Sale[]             @relation("SaleReservation")
+  leases RentalContract[] @relation("LeaseReservation")
+
+  @@index([propertyId])
+  @@index([clientId])
+  @@map("reservations")
+}
+
+// ─── Phase 3 : ventes, contrats, inspections, échéances, paiements ───────────
+
+/// Vente immobilière d'un bien par un propriétaire à un client acheteur.
+model Sale {
+  id            String     @id @default(cuid())
+  reference     String     @unique
+  propertyId    String
+  property      Property   @relation(fields: [propertyId], references: [id])
+  buyerId       String
+  buyer         Client     @relation("SaleBuyer", fields: [buyerId], references: [id])
+  ownerId       String
+  owner         Owner      @relation("SaleOwner", fields: [ownerId], references: [id])
+  agentId       String
+  agent         User       @relation("SaleAgent", fields: [agentId], references: [id])
+  requestId     String?
+  request       PropertyRequest? @relation(fields: [requestId], references: [id], onDelete: SetNull)
+  offerId       String?
+  reservationId String?
+  reservation   Reservation? @relation("SaleReservation", fields: [reservationId], references: [id], onDelete: SetNull)
+  salePrice     Decimal    @db.Decimal(14, 2)
+  status        SaleStatus @default(PREPARATION)
+  saleDate      DateTime?
+  notes         String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  payments Payment[]
+
+  @@index([propertyId])
+  @@index([buyerId])
+  @@index([status])
+  @@map("sales")
+}
+
+/// Contrat de location (bail) entre un propriétaire et un client locataire.
+model RentalContract {
+  id            String     @id @default(cuid())
+  reference     String     @unique
+  propertyId    String
+  property      Property   @relation(fields: [propertyId], references: [id])
+  tenantId      String
+  tenant        Client     @relation("LeaseTenant", fields: [tenantId], references: [id])
+  ownerId       String
+  owner         Owner      @relation("LeaseOwner", fields: [ownerId], references: [id])
+  requestId     String?
+  request       PropertyRequest? @relation(fields: [requestId], references: [id], onDelete: SetNull)
+  reservationId String?
+  reservation   Reservation? @relation("LeaseReservation", fields: [reservationId], references: [id], onDelete: SetNull)
+  startDate     DateTime
+  endDate       DateTime
+  monthlyRent   Decimal    @db.Decimal(14, 2)
+  depositAmount Decimal    @db.Decimal(14, 2)
+  paymentDay    Int        @default(5)
+  status        LeaseStatus @default(DRAFT)
+  signedAt      DateTime?
+  notes         String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  inspections PropertyInspection[]
+  invoices    RentInvoice[]
+  payments    Payment[]
+
+  @@index([propertyId])
+  @@index([tenantId])
+  @@index([status])
+  @@map("rental_contracts")
+}
+
+/// État des lieux d'entrée ou de sortie rattaché à un contrat de location.
+model PropertyInspection {
+  id                   String         @id @default(cuid())
+  contractId           String
+  contract             RentalContract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  type                 InspectionType
+  inspectionDate       DateTime
+  generalObservations  String?
+  condition            String?
+  inspectorId          String?
+  inspector            User?          @relation("InspectionInspector", fields: [inspectorId], references: [id], onDelete: SetNull)
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+
+  items InspectionItem[]
+
+  @@index([contractId])
+  @@map("property_inspections")
+}
+
+/// Observation détaillée d'un état des lieux, avec photo optionnelle.
+model InspectionItem {
+  id           String             @id @default(cuid())
+  inspectionId String
+  inspection   PropertyInspection @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
+  observation  String
+  photoUrl     String?
+  createdAt    DateTime           @default(now())
+
+  @@index([inspectionId])
+  @@map("inspection_items")
+}
+
+/// Échéance de loyer : ce qui DOIT être payé pour un contrat actif.
+model RentInvoice {
+  id             String         @id @default(cuid())
+  contractId     String
+  contract       RentalContract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  dueDate        DateTime
+  expectedAmount Decimal        @db.Decimal(14, 2)
+  paidAmount     Decimal        @default(0) @db.Decimal(14, 2)
+  status         InvoiceStatus  @default(PENDING)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  payments Payment[]
+  receipt  Receipt?
+
+  @@unique([contractId, dueDate])
+  @@index([status])
+  @@map("rent_invoices")
+}
+
+/// Quittance de loyer générée lorsqu'une échéance est entièrement réglée.
+model Receipt {
+  id           String      @id @default(cuid())
+  reference    String      @unique
+  invoiceId    String      @unique
+  invoice      RentInvoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  issuedAt     DateTime    @default(now())
+  periodLabel  String
+  amount       Decimal     @db.Decimal(14, 2)
+  paymentDate  DateTime
+  createdAt    DateTime    @default(now())
+
+  @@map("receipts")
+}
+
+/// Paiement générique : vente, loyer, caution ou autres frais.
+model Payment {
+  id                   String        @id @default(cuid())
+  reference            String        @unique
+  clientId             String
+  client               Client        @relation(fields: [clientId], references: [id])
+  amount               Decimal       @db.Decimal(14, 2)
+  paymentType          PaymentType
+  paymentMethod        PaymentMethod
+  paymentDate          DateTime
+  status               PaymentStatus @default(CONFIRMED)
+  transactionReference String?
+  notes                String?
+  saleId               String?
+  sale                 Sale?         @relation(fields: [saleId], references: [id], onDelete: SetNull)
+  invoiceId            String?
+  invoice              RentInvoice?  @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  contractId           String?
+  contract             RentalContract? @relation(fields: [contractId], references: [id], onDelete: SetNull)
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  @@index([clientId])
+  @@index([status])
+  @@index([paymentType])
+  @@map("payments")
+}
+
+/// Journal de traçabilité des opérations métier importantes.
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userName   String
+  action     String
+  entityType String
+  entityId   String
+  details    String?
+  createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@map("audit_logs")
 }

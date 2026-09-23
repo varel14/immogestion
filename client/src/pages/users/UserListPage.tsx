@@ -4,6 +4,7 @@ import { ChevronRight, Plus, ShieldCheck, UserCog } from 'lucide-react';
 import { usersApi } from '../../api/users.js';
 import { getApiErrorMessage } from '../../api/client.js';
 import { useAuth } from '../../auth/AuthContext.js';
+import { toast } from '../../utils/toast.js';
 import { useAsync } from '../../hooks/useAsync.js';
 import { useDebounce } from '../../hooks/useDebounce.js';
 import { PageHeader } from '../../components/ui/PageHeader.js';
@@ -58,6 +59,7 @@ export function UserListPage() {
         window.location.href = '/connexion';
         return;
       }
+      toast.success(target.isActive ? 'Le compte a été désactivé.' : 'Le compte a été réactivé.');
       setTarget(null);
       reload();
     } catch (err) {

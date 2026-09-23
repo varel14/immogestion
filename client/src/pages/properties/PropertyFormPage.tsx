@@ -269,13 +269,13 @@ export function PropertyFormPage() {
           <h2 className="border-b border-slate-100 px-5 py-3 font-semibold text-slate-800">Prix</h2>
           <div className="grid grid-cols-1 gap-4 px-5 py-4 sm:grid-cols-2">
             {showSalePrice && (
-              <Field label="Prix de vente (€)" required error={errors.price?.message}>
-                <Input type="number" min="0" step="any" placeholder="Ex. : 250000" error={errors.price?.message} {...register('price')} />
+              <Field label="Prix de vente (FCFA)" required error={errors.price?.message}>
+                <Input type="number" min="0" step="any" placeholder="Ex. : 25000000" error={errors.price?.message} {...register('price')} />
               </Field>
             )}
             {showRentPrice && (
-              <Field label="Loyer mensuel (€)" required error={errors.rentPrice?.message}>
-                <Input type="number" min="0" step="any" placeholder="Ex. : 850" error={errors.rentPrice?.message} {...register('rentPrice')} />
+              <Field label="Loyer mensuel (FCFA)" required error={errors.rentPrice?.message}>
+                <Input type="number" min="0" step="any" placeholder="Ex. : 150000" error={errors.rentPrice?.message} {...register('rentPrice')} />
               </Field>
             )}
             {!showSalePrice && !showRentPrice && (

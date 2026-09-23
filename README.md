@@ -55,7 +55,7 @@ createdb immobilier
 # 3. Créer les tables
 npm run db:push
 
-# 4. Créer le compte administrateur
+# 4. Créer les comptes et les données de démonstration
 npm run db:seed
 ```
 
@@ -90,6 +90,17 @@ Comptes créés par le seed (un par rôle) :
 
 > ⚠️ **Ces mots de passe de démonstration sont à changer après la première connexion** (page « Mon profil »).
 
+### Données de démonstration
+
+`npm run db:seed` remplit également toutes les tables métier pour visualiser immédiatement l'application :
+
+- **6 propriétaires** (avec coordonnées, pièces d'identité et notes),
+- **8 clients** dont un archivé,
+- **12 biens** couvrant tous les types (maison, appartement, terrain, local commercial, bureau, autre), les trois types de transaction et les cinq statuts, dont un archivé,
+- **37 médias** : 24 photos (SVG de démonstration générés dans `server/uploads/`) et 13 documents PDF (titre de propriété, DPE, règlement de copropriété…).
+
+La ré-exécution du seed est sans danger : les comptes utilisateurs ne sont jamais écrasés et les données de démonstration sont réinitialisées à l'identique (les fichiers `seed-*` de `server/uploads/` sont régénérés).
+
 ## Fonctionnalités (Phase 1)
 
 - **Authentification** : connexion, déconnexion, session persistante (JWT), routes protégées, modification du profil et du mot de passe. Rôles ADMIN / AGENT / MANAGER, extensibles via `server/src/config/constants.ts`, `prisma/schema.prisma` et `client/src/types/index.ts`.
@@ -109,7 +120,7 @@ Comptes créés par le seed (un par rôle) :
 | `npm run build` | Build de production (server + client) |
 | `npm run typecheck` | Vérification TypeScript des deux projets |
 | `npm run db:push` | Applique le schéma Prisma à la base |
-| `npm run db:seed` | Crée les comptes utilisateurs (un par rôle) |
+| `npm run db:seed` | Crée les comptes utilisateurs et les données de démonstration |
 | `npm run db:studio -w server` | Prisma Studio (exploration de la base) |
 
 ## Extension (phases suivantes)

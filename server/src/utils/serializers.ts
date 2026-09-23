@@ -19,3 +19,8 @@ export function toPublicUser<T extends { passwordHash?: string }>(user: T): Omit
   const { passwordHash: _passwordHash, ...rest } = user;
   return rest;
 }
+
+/** Convertit un Decimal Prisma en nombre JavaScript. */
+export function money(value: Prisma.Decimal | null | undefined): number | null {
+  return value === null || value === undefined ? null : Number(value);
+}

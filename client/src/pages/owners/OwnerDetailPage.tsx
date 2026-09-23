@@ -9,6 +9,7 @@ import { Spinner } from '../../components/ui/Spinner.js';
 import { ErrorState } from '../../components/ui/ErrorState.js';
 import { Badge } from '../../components/ui/Badge.js';
 import { formatDate, formatPrice, fullName, initials } from '../../utils/format.js';
+import { OwnerHistorySections } from '../../components/commercial/HistorySections.js';
 import { propertyStatusBadgeClass, propertyStatusLabels } from '../../utils/labels.js';
 
 export function OwnerDetailPage() {
@@ -168,6 +169,8 @@ export function OwnerDetailPage() {
           </Card>
         </div>
       </div>
+
+      <OwnerHistorySections ownerId={ownerData.id} />
     </div>
   );
 }
