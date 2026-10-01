@@ -1,6 +1,10 @@
 import { Route, Routes } from 'react-router-dom';
 import { AdminRoute, ProtectedRoute } from './auth/ProtectedRoute.js';
 import { Layout } from './components/layout/Layout.js';
+import { PublicLayout } from './components/public/PublicLayout.js';
+import { PublicHomePage } from './pages/public/PublicHomePage.js';
+import { PublicPropertyDetailPage } from './pages/public/PublicPropertyDetailPage.js';
+import { AccountPage } from './pages/account/AccountPage.js';
 import { LoginPage } from './pages/LoginPage.js';
 import { DashboardPage } from './pages/DashboardPage.js';
 import { PropertyListPage } from './pages/properties/PropertyListPage.js';
@@ -36,13 +40,20 @@ import { PaymentListPage } from './pages/payments/PaymentListPage.js';
 export default function App() {
   return (
     <Routes>
-      {/* Route publique */}
+      {/* ─── Site public : annonces de location et espace client ─── */}
+      <Route element={<PublicLayout />}>
+        <Route index element={<PublicHomePage />} />
+        <Route path="locations/:id" element={<PublicPropertyDetailPage />} />
+        <Route path="mon-compte" element={<AccountPage />} />
+      </Route>
+
+      {/* Connexion des employés de l'agence */}
       <Route path="/connexion" element={<LoginPage />} />
 
-      {/* Routes privées */}
+      {/* ─── Application de gestion (employés) ─── */}
       <Route element={<ProtectedRoute />}>
         <Route element={<Layout />}>
-          <Route index element={<DashboardPage />} />
+          <Route path="tableau-de-bord" element={<DashboardPage />} />
 
           {/* Biens */}
           <Route path="biens">

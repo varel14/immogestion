@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 /** Clé de stockage local du token de session. */
-export const TOKEN_KEY = 'immogestion_token';
+export const TOKEN_KEY = 'LocalBridge_token';
 
 export function getToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
@@ -32,8 +32,10 @@ api.interceptors.response.use(
   (error) => {
     // Session expirée ou invalide : retour à la page de connexion,
     // sauf si l'erreur provient de la tentative de connexion elle-même.
+    // Le portail client (/portal) gère ses propres sessions et redirections.
     const isLoginCall = error.config?.url?.includes('/auth/login');
-    if (error.response?.status === 401 && getToken() && !isLoginCall) {
+    const isPortalCall = error.config?.url?.includes('/portal/');
+    if (error.response?.status === 401 && getToken() && !isLoginCall && !isPortalCall) {
       clearToken();
       window.location.href = '/connexion';
     }

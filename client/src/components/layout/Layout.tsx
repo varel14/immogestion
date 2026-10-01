@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { Building2, CalendarDays, ClipboardList, FileSignature, HandCoins, KeyRound, LayoutDashboard, Lock, LogOut, Menu, ReceiptText, UserCog, Users, X } from 'lucide-react';
+import { Building2, CalendarDays, ClipboardList, ExternalLink, FileSignature, HandCoins, KeyRound, LayoutDashboard, Lock, LogOut, Menu, ReceiptText, UserCog, Users, X } from 'lucide-react';
 import { useAuth } from '../../auth/AuthContext.js';
 import { initials } from '../../utils/format.js';
 import { roleLabels } from '../../utils/labels.js';
@@ -17,7 +17,7 @@ interface NavItem {
 }
 
 const navigation: NavItem[] = [
-  { to: '/', label: 'Tableau de bord', icon: LayoutDashboard, end: true },
+  { to: '/tableau-de-bord', label: 'Tableau de bord', icon: LayoutDashboard, end: true },
   { to: '/biens', label: 'Biens', icon: Building2 },
   { to: '/proprietaires', label: 'Propriétaires', icon: KeyRound },
   { to: '/clients', label: 'Clients', icon: Users },
@@ -28,6 +28,7 @@ const navigation: NavItem[] = [
   { to: '/ventes', label: 'Ventes', icon: HandCoins, section: 'Transactions' },
   { to: '/contrats', label: 'Locations', icon: FileSignature, section: 'Transactions' },
   { to: '/paiements', label: 'Paiements', icon: ReceiptText, section: 'Transactions' },
+  { to: '/', label: 'Site public', icon: ExternalLink, end: true },
 ];
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
@@ -49,7 +50,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           <Building2 className="h-5 w-5" strokeWidth={1.8} />
         </div>
         <div>
-          <p className="font-display text-lg leading-tight font-semibold text-white">ImmoGestion</p>
+          <p className="font-display text-lg leading-tight font-semibold text-white">LocalBridge</p>
           <p className="text-xs text-slate-400">Gestion immobilière</p>
         </div>
       </div>
@@ -162,7 +163,7 @@ export function Layout() {
             <div className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-brand text-white">
               <Building2 className="h-4 w-4" strokeWidth={1.8} />
             </div>
-            <span className="font-display text-lg font-semibold text-slate-900">ImmoGestion</span>
+            <span className="font-display text-lg font-semibold text-slate-900">LocalBridge</span>
           </div>
         </header>
 

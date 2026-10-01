@@ -210,6 +210,8 @@ model Client {
   address              String?
   identificationNumber String?
   notes                String?
+  /// Mot de passe du portail client (null : compte créé en interne, sans accès portail).
+  passwordHash         String?
   isActive             Boolean  @default(true)
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
@@ -314,8 +316,9 @@ model Visit {
   property    Property    @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   clientId    String
   client      Client      @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  agentId     String
-  agent       User        @relation("VisitAgent", fields: [agentId], references: [id])
+  /// Agent en charge de la visite (null : visite demandée depuis le portail public).
+  agentId     String?
+  agent       User?       @relation("VisitAgent", fields: [agentId], references: [id], onDelete: SetNull)
   interestId  String?
   scheduledAt DateTime
   status      VisitStatus @default(SCHEDULED)

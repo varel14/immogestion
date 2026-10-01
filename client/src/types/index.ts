@@ -132,7 +132,7 @@ export interface DashboardStats {
     status: VisitStatus;
     property: { id: string; reference: string; title: string };
     client: { id: string; firstName: string; lastName: string };
-    agent: { id: string; firstName: string; lastName: string };
+    agent: { id: string; firstName: string; lastName: string } | null;
   }[];
   soldProperties: number;
   rentedProperties: number;
@@ -173,7 +173,8 @@ export interface Visit {
   id: string;
   propertyId: string;
   clientId: string;
-  agentId: string;
+  /** Agent en charge — null pour une visite demandée depuis le portail public. */
+  agentId: string | null;
   interestId: string | null;
   scheduledAt: string;
   status: VisitStatus;
@@ -183,7 +184,7 @@ export interface Visit {
   updatedAt: string;
   property?: PropertySummary;
   client?: PersonSummary;
-  agent?: PersonSummary;
+  agent?: PersonSummary | null;
 }
 
 export const REQUEST_TYPES = ['PURCHASE', 'RENTAL'] as const;

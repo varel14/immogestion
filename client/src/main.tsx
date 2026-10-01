@@ -10,13 +10,16 @@ import '@fontsource/public-sans/600.css';
 import '@fontsource/public-sans/700.css';
 import App from './App.js';
 import { AuthProvider } from './auth/AuthContext.js';
+import { ClientAuthProvider } from './auth/ClientAuthContext.js';
 import './index.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
       <AuthProvider>
-        <App />
+        <ClientAuthProvider>
+          <App />
+        </ClientAuthProvider>
       </AuthProvider>
     </BrowserRouter>
   </StrictMode>,

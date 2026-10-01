@@ -37,7 +37,7 @@ export function LoginPage() {
     try {
       await login(values.email, values.password);
       const from = (location.state as { from?: string } | null)?.from;
-      navigate(from ?? '/', { replace: true });
+      navigate(from ?? '/tableau-de-bord', { replace: true });
     } catch (err) {
       setError(getApiErrorMessage(err));
     }
@@ -50,7 +50,7 @@ export function LoginPage() {
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-blue-600 text-white shadow-lg">
             <Building2 className="h-8 w-8" />
           </div>
-          <h1 className="text-2xl font-bold text-white">ImmoGestion</h1>
+          <h1 className="text-2xl font-bold text-white">LocalBridge</h1>
           <p className="mt-1 text-sm text-slate-400">Connectez-vous pour accéder à votre espace de gestion</p>
         </div>
 

@@ -59,15 +59,18 @@ export async function getVisitById(id: string) {
   return visit;
 }
 
-async function assertParticipants(propertyId: string, clientId: string, agentId: string) {
+async function assertParticipants(propertyId: string, clientId: string, agentId: string | null) {
   const [property, client, agent] = await Promise.all([
     prisma.property.findUnique({ where: { id: propertyId }, select: { id: true } }),
     prisma.client.findUnique({ where: { id: clientId }, select: { id: true } }),
-    prisma.user.findFirst({ where: { id: agentId, isActive: true }, select: { id: true } }),
+    // Agent optionnel : une visite demandée via le portail n'a pas encore d'agent.
+    agentId
+      ? prisma.user.findFirst({ where: { id: agentId, isActive: true }, select: { id: true } })
+      : Promise.resolve(null),
   ]);
   if (!property) throw badRequest('Le bien sélectionné est introuvable.');
   if (!client) throw badRequest('Le client sélectionné est introuvable.');
-  if (!agent) throw badRequest("L'agent sélectionné est introuvable ou désactivé.");
+  if (agentId && !agent) throw badRequest("L'agent sélectionné est introuvable ou désactivé.");
 }
 
 export async function createVisit(input: Omit<CreateVisitInput, 'scheduledAt'> & { scheduledAt: Date }) {

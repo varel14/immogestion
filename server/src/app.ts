@@ -21,6 +21,7 @@ import { saleRoutes } from './modules/sales/sales.routes.js';
 import { contractRoutes } from './modules/contracts/contracts.routes.js';
 import { paymentRoutes } from './modules/payments/payments.routes.js';
 import { auditRoutes } from './modules/audit/audit.routes.js';
+import { portalRoutes } from './modules/portal/portal.routes.js';
 
 const API_PREFIX = '/api';
 
@@ -56,6 +57,8 @@ export function createApp() {
   app.use(`${API_PREFIX}/contracts`, contractRoutes);
   app.use(`${API_PREFIX}/payments`, paymentRoutes);
   app.use(`${API_PREFIX}/audit`, auditRoutes);
+  // Portail public : annonces de location, demandes de visite et comptes clients.
+  app.use(`${API_PREFIX}/portal`, portalRoutes);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

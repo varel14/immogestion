@@ -268,7 +268,7 @@ export function DashboardPage() {
                     <span className="text-sm font-semibold text-slate-800">{formatDateTime(visit.scheduledAt)}</span>
                     <span className="min-w-0 flex-1 truncate text-sm text-slate-600">{visit.property.title}</span>
                     <span className="text-sm text-slate-500">{visit.client.firstName} {visit.client.lastName}</span>
-                    <span className="hidden text-xs text-slate-400 sm:block">Agent : {visit.agent.firstName} {visit.agent.lastName}</span>
+                    <span className="hidden text-xs text-slate-400 sm:block">Agent : {visit.agent ? `${visit.agent.firstName} ${visit.agent.lastName}` : 'à assigner'}</span>
                     <Badge className={visitStatusBadgeClass[visit.status]}>{visitStatusLabels[visit.status]}</Badge>
                   </Link>
                 </li>

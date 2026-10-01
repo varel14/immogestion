@@ -14,6 +14,10 @@ build/
 server/uploads/*
 !server/uploads/.gitkeep
 
+# Tests GUI (artefacts et config locale temporaire)
+gui-test-screenshots/
+client/vite.config.gui-test.ts
+
 # Divers
 *.log
 .DS_Store

@@ -40,7 +40,7 @@ export function VisitFormPage() {
     if (isEdit && existing.data) {
       setPropertyId(existing.data.propertyId);
       setClientId(existing.data.clientId);
-      setAgentId(existing.data.agentId);
+      setAgentId(existing.data.agentId ?? '');
       setScheduledAt(toLocalInputValue(new Date(existing.data.scheduledAt)));
       setNotes(existing.data.notes ?? '');
     } else if (!isEdit) {

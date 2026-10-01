@@ -28,7 +28,7 @@ export function AdminRoute() {
   const { user } = useAuth();
 
   if (user?.role !== 'ADMIN') {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/tableau-de-bord" replace />;
   }
 
   return <Outlet />;
